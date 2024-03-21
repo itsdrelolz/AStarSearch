@@ -6,56 +6,7 @@ import java.util.Random;
 import java.util.Scanner;
 
 
-public class Node {
-    private int row, col, f, g, h, type;
-    private Node parent;
-    public Node(int r, int c, int t) {
-    row = r;
-    col = c;
-    type = t;
-    parent = null;
-    }
-    //mutator methods to set values
-    public void setF() {
-    f = g + h;
-    }
-    public void setG(int value) {
-    g = value;
-    }
-    public void setH(int value) {
-    h = value;
-    }
-    public void setParent(Node n) {
-    parent = n;
-    }
-    //accessor methods to get values
-    public int getF() {
-    return f;
-    }
-    public int getG() {
-    return g;
-    }
-    public int getH() {
-    return h;
-    }
-    public Node getParent() {
-    return parent;
-    }
-    public int getRow() {
-    return row;
-    }
-    public int getCol() {
-    return col;
-    }
-    public boolean equals(Object in) {
-    //typecast to Node
-    Node n = (Node) in;
-    return row == n.getRow() && col == n.getCol();
-    }
-    public String toString() {
-    return "Node: " + row + "_" + col;
-    }
-}
+
 
 
 public class AStarSearch {
@@ -75,23 +26,36 @@ public class AStarSearch {
   // A* search implementation
     public List<Node> findPath(Node start, Node goal) {
         // ... (A* algorithm logic with openList, closedList, etc.)
+        
     }
 
 
     // Heuristic (Manhattan Distance)
     private int calculateHeuristic(Node current, Node goal) {
        // ...
+        
     }
 
 
     // User input handling
     private Node getStartNode() {
         // ... (use Scanner to get input)
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Enter the row and column of the start node: ");
+        int row = scanner.nextInt();
+        int col = scanner.nextInt();
+        return new Node(row, col, PATHABLE);
+
     }
 
 
     private Node getGoalNode() {
         // ... (use Scanner to get input)
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Enter the row and column of the goal node: ");
+        int row = scanner.nextInt();
+        int col = scanner.nextInt();
+        return new Node(row, col, PATHABLE);
     }
 
 
@@ -100,6 +64,18 @@ public class AStarSearch {
         // ...
     }
 
+    public static Node[][] generateRandomEnvironment() {
+        // ...
+        Node[][] grid = new Node[GRID_SIZE][GRID_SIZE];
+        Random random = new Random();
+                
+        for(int row = 0; row < GRID_SIZE; row++) {
+            for(int col = 0; col < GRID_SIZE; col++) {
+                int type = random.nextInt(2);
+                grid[row][col] = new Node(row, col, type);
+            }
+        }
+    }
 
     public static void main(String[] args) {
         AStarSearch search = new AStarSearch();
@@ -114,6 +90,7 @@ public class AStarSearch {
              // Display the path (or "path not found" message)
         }
     }
-}
 
+
+}
 
