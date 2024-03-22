@@ -5,92 +5,102 @@ import java.util.PriorityQueue;
 import java.util.Random;
 import java.util.Scanner;
 
-
-
-
-
 public class AStarSearch {
-    private static final int GRID_SIZE = 15;
-    private static final int PATHABLE = 0;
-    private static final int BLOCKED = 1;
+    private Node[][] grid;
+    private int numRows;
+    private int numCols;
 
-
-    private int[][] grid;
-
-
-    public AStarSearch(int[][] map, Node start, Node goal) {
-        grid = new int[GRID_SIZE][GRID_SIZE];
-        generateRandomEnvironment();
+    public AStarSearch(Node[][] grid) {
+        this.grid = grid;
+        this.numRows = grid.length;
+        this.numCols = grid[0].length;
     }
 
-  // A* search implementation
-    public List<Node> findPath(Node start, Node goal) {
-        // ... (A* algorithm logic with openList, closedList, etc.)
-        
-    }
+    // A* search algorithm implementation
 
+    // Other necessary methods: generateSuccessors, calculateHeuristic, reconstructPath
 
-    // Heuristic (Manhattan Distance)
-    private int calculateHeuristic(Node current, Node goal) {
-       // ...
-        
-    }
-
-
-    // User input handling
-    private Node getStartNode() {
-        // ... (use Scanner to get input)
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("Enter the row and column of the start node: ");
-        int row = scanner.nextInt();
-        int col = scanner.nextInt();
-        return new Node(row, col, PATHABLE);
-
-    }
-
-
-    private Node getGoalNode() {
-        // ... (use Scanner to get input)
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("Enter the row and column of the goal node: ");
-        int row = scanner.nextInt();
-        int col = scanner.nextInt();
-        return new Node(row, col, PATHABLE);
-    }
-
-
-    // Display the environment
-    public void displayEnvironment() {
-        // ...
-    }
-
-    public static Node[][] generateRandomEnvironment() {
-        // ...
-        Node[][] grid = new Node[GRID_SIZE][GRID_SIZE];
-        Random random = new Random();
-                
-        for(int row = 0; row < GRID_SIZE; row++) {
-            for(int col = 0; col < GRID_SIZE; col++) {
-                int type = random.nextInt(2);
-                grid[row][col] = new Node(row, col, type);
-            }
-        }
-    }
-
-    public static void main(String[] args) {
-        AStarSearch search = new AStarSearch();
-        search.displayEnvironment();
-
-
-        while (true) {
-            Node start = search.getStartNode();
-            Node goal = search.getGoalNode();
-            List<Node> path = search.findPath(start, goal);
-            
-             // Display the path (or "path not found" message)
-        }
-    }
-
-
+    // Implement the A* search algorithm as described previously
 }
 
+public class Environment {
+    private static final int GRID_SIZE = 15;
+    private static final double OBSTACLE_PROBABILITY = 0.1;
+
+    private Node[][] grid;
+
+    public Environment() {
+        grid = generateRandomGrid(GRID_SIZE, GRID_SIZE, OBSTACLE_PROBABILITY);
+    }
+
+    private Node[][] generateRandomGrid(int rows, int cols, double obstacleProbability) {
+        Node[][] grid = new Node[rows][cols];
+        Random random = new Random();
+
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                int type = random.nextDouble() < obstacleProbability ? 1 : 0; // 1 for obstacle, 0 for empty
+                grid[i][j] = new Node(i, j, type);
+            }
+        }
+
+        return grid;
+    }
+
+    public void displayEnvironment() {
+        for (int i = 0; i < grid.length; i++) {
+            for (int j = 0; j < grid[0].length; j++) {
+                System.out.print(grid[i][j].getType() == 1 ? "X " : "_ "); // X for obstacle, _ for empty
+            }
+            System.out.println();
+        }
+    }
+
+    public Node[][] getGrid() {
+        return grid;
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        Environment environment = new Environment();
+        AStarSearch aStarSearch = new AStarSearch(environment.getGrid());
+
+        while (true) {
+            System.out.println("Generated Environment:");
+            environment.displayEnvironment();
+
+            System.out.println("Enter starting node coordinates (row col):");
+            int startRow = scanner.nextInt();
+            int startCol = scanner.nextInt();
+
+            System.out.println("Enter goal node coordinates (row col):");
+            int goalRow = scanner.nextInt();
+            int goalCol = scanner.nextInt();
+
+            // Run A* algorithm to find path
+            Node startNode = environment.getGrid()[startRow][startCol];
+            Node goalNode = environment.getGrid()[goalRow][goalCol];
+            List<Node> path = aStarSearch.findPath(startNode, goalNode);
+
+            if (!path.isEmpty()) {
+                System.out.println("Path found:");
+                for (Node node : path) {
+                    System.out.print("[" + node.getRow() + ", " + node.getCol() + "] ");
+                }
+                System.out.println();
+            } else {
+                System.out.println("No path found.");
+            }
+
+            System.out.println("Do you want to continue? (yes/no)");
+            String choice = scanner.next();
+            if (!choice.equalsIgnoreCase("yes")) {
+                break;
+            }
+        }
+
+        scanner.close();
+    }
+}
