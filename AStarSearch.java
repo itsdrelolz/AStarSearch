@@ -1,106 +1,203 @@
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Random;
-import java.util.Scanner;
 
 public class AStarSearch {
-    private Node[][] grid;
-    private int numRows;
-    private int numCols;
 
-    public AStarSearch(Node[][] grid) {
-        this.grid = grid;
-        this.numRows = grid.length;
-        this.numCols = grid[0].length;
-    }
+    private static Node[][] grid;
+    private PriorityQueue<Node> openList;
+    private boolean[][] closedList;
 
-    // A* search algorithm implementation
+    static Node startNode;
+    static Node goalNode;
+    private int blocks;
 
-    // Other necessary methods: generateSuccessors, calculateHeuristic, reconstructPath
+    public AStarSearch(int sr, int sc, int gr, int gc) {
+        grid = new Node[15][15];
 
-    // Implement the A* search algorithm as described previously
-}
+        closedList = new boolean[15][15];
+        openList = new PriorityQueue<>((n1, n2) -> {
+            return n1.getF() < n2.getF() ? -1 : n1.getF() > n2.getF() ? 1 : 0;
+        });
 
-public class Environment {
-    private static final int GRID_SIZE = 15;
-    private static final double OBSTACLE_PROBABILITY = 0.1;
+        startNode = new Node(sc, sr, 0);
+        goalNode = new Node(gc, gr, 0);
 
-    private Node[][] grid;
-
-    public Environment() {
-        grid = generateRandomGrid(GRID_SIZE, GRID_SIZE, OBSTACLE_PROBABILITY);
-    }
-
-    private Node[][] generateRandomGrid(int rows, int cols, double obstacleProbability) {
-        Node[][] grid = new Node[rows][cols];
-        Random random = new Random();
-
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < cols; j++) {
-                int type = random.nextDouble() < obstacleProbability ? 1 : 0; // 1 for obstacle, 0 for empty
-                grid[i][j] = new Node(i, j, type);
+        for (int i = 0; i < grid.length; i++) {
+            for (int j = 0; j < grid[i].length; j++) {
+                grid[i][j] = new Node(i, j, 0);
+                grid[i][j].setH(Math.abs(i - goalNode.getRow()) + Math.abs(j - goalNode.getCol()));
+                grid[i][j].isGoal = false;
             }
         }
 
-        return grid;
+        grid[sc][sr].setG(0);
+
+        Random random = new Random();
+        while (blocks < 23) {
+            int i = random.nextInt(grid.length);
+            int j = random.nextInt(grid[0].length);
+            if (grid[i][j].getT() == 0) {
+                addBlocks(i, j);
+                blocks++;
+            }
+        }
     }
 
-    public void displayEnvironment() {
+
+    public void addBlocks(int i, int j) {
+        grid[i][j].setT(1);
+    }
+
+    public void updateF(Node current, Node parent, int gValue) {
+        if (parent.getT() == 1 || closedList[parent.getRow()][parent.getCol()]) {
+            return;
+        }
+
+        int pFValue = parent.getF() + gValue;
+        boolean oList = openList.contains(parent);
+
+        if (!oList || pFValue < parent.getF()) {
+            parent.setG(pFValue); // Update the G value
+            parent.setF(); // Recalculate the F value based on updated G and H values
+            parent.setParent(current);
+            if (!oList) {
+                openList.add(parent);
+            }
+        }
+    }
+        
+
+    public void createPath() {
+        openList.add(grid[startNode.getRow()][startNode.getCol()]);
+
+        Node c;
+
+        while (!openList.isEmpty()) {
+            c = openList.poll();
+
+            if (c.getT() == 1) {
+                continue;
+            }
+
+            closedList[c.getRow()][c.getCol()] = true;
+
+            if (c.equals(grid[goalNode.getRow()][goalNode.getCol()])) {
+                return;
+            }
+
+            Node temp;
+
+            // Move up
+            if (c.getRow() - 1 >= 0) {
+                temp = grid[c.getRow() - 1][c.getCol()];
+                updateF(c, temp, c.getF() + 10);
+            }
+
+            // Move left
+            if (c.getCol() - 1 >= 0) {
+                temp = grid[c.getRow()][c.getCol() - 1];
+                updateF(c, temp, c.getF() + 10);
+            }
+
+            // Move down
+            if (c.getRow() + 1 < grid.length) {
+                temp = grid[c.getRow() + 1][c.getCol()];
+                updateF(c, temp, c.getF() + 10);
+            }
+
+            // Move right
+            if (c.getCol() + 1 < grid[0].length) {
+                temp = grid[c.getRow()][c.getCol() + 1];
+                updateF(c, temp, c.getF() + 10);
+            }
+
+            // Diagonal moves
+
+            // Top-left
+            if (c.getRow() - 1 >= 0 && c.getCol() - 1 >= 0) {
+                temp = grid[c.getRow() - 1][c.getCol() - 1];
+                updateF(c, temp, c.getF() + 14);
+            }
+
+            // Top-right
+            if (c.getRow() - 1 >= 0 && c.getCol() + 1 < grid[0].length) {
+                temp = grid[c.getRow() - 1][c.getCol() + 1];
+                updateF(c, temp, c.getF() + 14);
+            }
+
+            // Bottom-left
+            if (c.getRow() + 1 < grid.length && c.getCol() - 1 >= 0) {
+                temp = grid[c.getRow() + 1][c.getCol() - 1];
+                updateF(c, temp, c.getF() + 14);
+            }
+
+            // Bottom-right
+            if (c.getRow() + 1 < grid.length && c.getCol() + 1 < grid[0].length) {
+                temp = grid[c.getRow() + 1][c.getCol() + 1];
+                updateF(c, temp, c.getF() + 14);
+            }
+        }
+    }
+
+
+    public void showGrid() {
+        System.out.println("Grid:");
         for (int i = 0; i < grid.length; i++) {
-            for (int j = 0; j < grid[0].length; j++) {
-                System.out.print(grid[i][j].getType() == 1 ? "X " : "_ "); // X for obstacle, _ for empty
+            for (int j = 0; j < grid[i].length; j++) {
+                if (i == startNode.getRow() && j == startNode.getCol())
+                    System.out.print("S ");
+                else if (i == goalNode.getRow() && j == goalNode.getCol())
+                    System.out.print("G ");
+                else if (grid[i][j].getT() == 1)
+                    System.out.print("1 ");
+                else
+                    System.out.print("0 ");
             }
             System.out.println();
         }
+        System.out.println();
     }
 
-    public Node[][] getGrid() {
-        return grid;
-    }
-}
+    
+    
+    
+    
+    
+    public void showGridPath() {
+        if (closedList[goalNode.getRow()][goalNode.getCol()]) {
+            System.out.print("Path taken: ");
+            Node d = grid[goalNode.getRow()][goalNode.getCol()];
+            System.out.println(d.toString());
 
-public class Main {
-    public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        Environment environment = new Environment();
-        AStarSearch aStarSearch = new AStarSearch(environment.getGrid());
+            grid[d.getRow()][d.getCol()].isGoal = true;
 
-        while (true) {
-            System.out.println("Generated Environment:");
-            environment.displayEnvironment();
+            while (d.getParent() != null) {
+                System.out.print(d.getParent().toString() + " <- ");
+                grid[d.getParent().getRow()][d.getParent().getCol()].isGoal = true;
+                d = d.getParent();
+            }
 
-            System.out.println("Enter starting node coordinates (row col):");
-            int startRow = scanner.nextInt();
-            int startCol = scanner.nextInt();
+            System.out.println("\n");
 
-            System.out.println("Enter goal node coordinates (row col):");
-            int goalRow = scanner.nextInt();
-            int goalCol = scanner.nextInt();
-
-            // Run A* algorithm to find path
-            Node startNode = environment.getGrid()[startRow][startCol];
-            Node goalNode = environment.getGrid()[goalRow][goalCol];
-            List<Node> path = aStarSearch.findPath(startNode, goalNode);
-
-            if (!path.isEmpty()) {
-                System.out.println("Path found:");
-                for (Node node : path) {
-                    System.out.print("[" + node.getRow() + ", " + node.getCol() + "] ");
+            for (int i = 0; i < grid.length; i++) {
+                for (int j = 0; j < grid[0].length; j++) {
+                    if (i == startNode.getRow() && j == startNode.getCol()) {
+                        System.out.print("S ");
+                    } else if (i == goalNode.getRow() && j == goalNode.getCol()) {
+                        System.out.print("G ");
+                    } else if (grid[i][j].isGoal) {
+                        System.out.print("1 ");
+                    } else if (grid[i][j].getT() == 0) {
+                        System.out.print("0 ");
+                    } else {
+                        System.out.print("X ");
+                    }
                 }
                 System.out.println();
-            } else {
-                System.out.println("No path found.");
             }
-
-            System.out.println("Do you want to continue? (yes/no)");
-            String choice = scanner.next();
-            if (!choice.equalsIgnoreCase("yes")) {
-                break;
-            }
+            System.out.println();
+        } else {
+            System.out.println("No path found");
         }
-
-        scanner.close();
     }
-}
+}    

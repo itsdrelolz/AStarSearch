@@ -1,11 +1,16 @@
 public class Node {
     private int row, col, f, g, h, type;
+    public boolean isGoal;
     private Node parent;
+
+
     public Node(int r, int c, int t) {
     row = r;
     col = c;
     type = t;
     parent = null;
+
+
     }
     //mutator methods to set values
     public void setF() {
@@ -20,6 +25,9 @@ public class Node {
     public void setParent(Node n) {
     parent = n;
     }
+    public void setT(int value) {
+		type = value;
+	}
     //accessor methods to get values
     public int getF() {
     return f;
@@ -39,6 +47,10 @@ public class Node {
     public int getCol() {
     return col;
     }
+    public int getT() {
+
+		return type;
+	}
     public boolean equals(Object in) {
     //typecast to Node
     Node n = (Node) in;
