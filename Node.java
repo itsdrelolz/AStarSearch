@@ -61,4 +61,3 @@ public class Node {
     return "Node: " + row + "_" + col;
     }
 }
-

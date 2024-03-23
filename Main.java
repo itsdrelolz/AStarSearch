@@ -12,9 +12,13 @@ public class Main {
         int goalCol = scanner.nextInt();
         AStarSearch a = new AStarSearch(startingRow, startingCol, goalRow, goalCol);
         a.showGrid();
-        a.createPath();
+
+        boolean pathFound = a.createPath();
+        if (pathFound) {
+            a.showPath();
+        } else {
+            System.out.println("No path found.");
+        }
         scanner.close();
     }
-    
-
-    }
+}
